@@ -23,7 +23,6 @@ all: $(PROGRAMS)
 
 clean:
 	$(RM) $(PROGRAMS) $(addsuffix .exe,$(PROGRAMS))
-	$(MAKE) -C ZAPD clean
 	$(MAKE) -C fado clean
 	$(MAKE) -C z64compress clean
 

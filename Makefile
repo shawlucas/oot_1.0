@@ -45,7 +45,7 @@ ifeq ($(NON_MATCHING),1)
 endif
 
 # rom compression flags
-COMPFLAGS := --in oot.us.rev1.rom_uncompressed.z64 --out oot.us.rev1.rom.z64 --codec yaz --dma 0x7430,1526 --compress 10-14,27-1509 --skip 942,944,946,948,950,952,954,956,958,960,962,964,966,968,970,972,974,976,978,980,982,984,986,988,990,992,994,996,998,1000,1002,1004 --threads 16 --only-stdout
+COMPFLAGS := --in oot.jp.rev1.rom_uncompressed.z64 --out oot.jp.rev1.rom.z64 --codec yaz --dma 0x7430,1526 --compress 10-14,27-1509 --skip 942,944,946,948,950,952,954,956,958,960,962,964,966,968,970,972,974,976,978,980,982,984,986,988,990,992,994,996,998,1000,1002,1004 --threads 16 --only-stdout
 
 ifneq ($(NON_MATCHING),1)
 	COMPFLAGS += --matching
@@ -156,7 +156,7 @@ endif
 OBJDUMP_FLAGS := -d -r -z -Mreg-names=32
 
 # ROM image
-ROMC := oot.us.rev1.rom.z64
+ROMC := oot.jp.rev1.rom.z64
 ROM := $(ROMC:.rom.z64=.rom_uncompressed.z64)
 ELF := $(ROM:.z64=.elf)
 # description of ROM segments
@@ -170,7 +170,7 @@ else
 SRC_DIRS := $(shell find src -type d)
 endif
 
-S_FILES		  := $(foreach dir, $(ASM_DIRS), $(wildcard $(dir)/*.s))
+S_FILES		  := $(foreach dir, $(SRC_DIRS) $(ASM_DIRS), $(wildcard $(dir)/*.s))
 O_FILES       := $(foreach f,$(wildcard baserom/*),build/$f.o) \
 				 $(foreach f, $(S_FILES:.s=.o), build/$f)
 
@@ -185,11 +185,13 @@ endif
 uncompressed: $(ROM)
 ifeq ($(COMPARE),1)
 	@md5sum $(ROM)
+	@md5sum -c checksum_uncompressed.md5
 endif
 
 compressed: $(ROMC)
 ifeq ($(COMPARE),1)
 	@md5sum $(ROMC)
+	@md5sum -c checksum.md5
 endif
 
 clean:
@@ -229,6 +231,9 @@ build/ldscript.txt: build/$(SPEC)
 
 build/asm/%.o: asm/%.s
 	$(AS) $(ASFLAGS) $< -o $@
+
+build/src/%.o: src/%.s
+	$(CPP) $(CPPFLAGS) -Iinclude $< | $(AS) $(ASFLAGS) -o $@
 
 build/baserom/%.o: baserom/%
 	$(OBJCOPY) -I binary -O elf32-big $< $@

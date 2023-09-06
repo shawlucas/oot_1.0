@@ -1,6 +1,7 @@
 beginseg
      name "makerom"
-     include "build/baserom/makerom.o"
+     include "build/src/makerom/rom_header.o"
+     include "build/src/makerom/makerom.o"
      address 0x80000000
 endseg
 
